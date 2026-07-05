@@ -27,14 +27,19 @@ jobs:
           set -eu
           latest_version=$(python3 -c 'import json; print(json.load(open("firmware/latest.json", "r", encoding="utf-8"))["currentVersion"])')
           target_hardware=$(python3 -c 'import json; print(json.load(open("firmware/latest.json", "r", encoding="utf-8"))["targetHardware"])')
+          public_base_url=$(python3 -c 'import json; print(json.load(open("firmware/latest.json", "r", encoding="utf-8"))["publicBaseUrl"])')
           test -f README.md
           test -f CHANGELOG.md
           test -f index.html
           test -f firmware/latest.json
           test -f ota/latest.json
+          test -f docs/DOWNLOADS.md
+          test -f docs/OTA_SECURITY.md
+          test -f docs/VERIFY_FIRMWARE.md
           test -f "firmware/${target_hardware}/v${latest_version}/firmware.bin"
           test -f "firmware/${target_hardware}/v${latest_version}/firmware.sha256"
           test -f ota/keys/public/jkbmsr-ota-p256-20260705.pem
+          test "${public_base_url}" = "https://cdn.jkbmsr.com"
 
       - name: Verify published checksum
         run: |

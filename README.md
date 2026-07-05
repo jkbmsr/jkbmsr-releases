@@ -10,6 +10,8 @@ Public artifact host:
 
 - `https://cdn.jkbmsr.com`
 
+Authenticated OTA delivery remains separate and continues through the JKBMSR cloud API. This repository and domain are for public manual downloads and verification material.
+
 ## Scope
 
 This repository may contain:
@@ -79,3 +81,29 @@ README.md
 - Keep release metadata aligned with the production OTA release.
 - Never publish private signing material.
 - Keep version 1 limited to JK-BMS support only.
+
+## Deployment
+
+- Cloudflare Pages project: `jkbmsr-releases`
+- Public custom domain: `cdn.jkbmsr.com`
+- Source branch: `main`
+- Deployment workflow: `.github/workflows/pages.yml`
+
+The Cloudflare Pages deployment should publish this repository as a static artifact mirror only. Do not place authenticated APIs, upload handlers, or private operational tooling behind this domain.
+
+## Publishing Model
+
+- `cdn.jkbmsr.com` is the canonical anonymous host for manual downloads.
+- `api.jkbmsr.com` remains the authenticated OTA channel for managed devices.
+- `jkbmsr-firmware` is the private source of truth for firmware source, release generation, and OTA signing.
+- Public artifacts mirrored here must match the release metadata published by the production OTA flow.
+
+## Maintainer Checklist
+
+Before merging public artifact updates:
+
+1. Confirm the firmware binary, checksum, and public metadata all describe the same version.
+2. Confirm `firmware/latest.json` points at the current public version and target.
+3. Confirm `ota/latest.json` exposes only public verification material.
+4. Confirm no private keys, Cloudflare tokens, or internal-only files were added.
+5. Confirm links on `index.html` and docs still resolve under `https://cdn.jkbmsr.com`.

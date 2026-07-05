@@ -57,6 +57,12 @@
         line-height: 1.5;
       }
 
+      .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
       .grid {
         display: grid;
         gap: 16px;
@@ -102,6 +108,10 @@
         color: var(--muted);
         font-size: 14px;
       }
+
+      .muted-link {
+        color: var(--muted);
+      }
     </style>
   </head>
   <body>
@@ -110,11 +120,17 @@
         <div class="eyebrow">JKBMSR Releases</div>
         <h1>Public firmware artifacts and verification files</h1>
         <p>
-          This domain fronts the public <code>jkbmsr-releases</code> repository. It publishes signed OTA metadata,
-          checksums, release notes, and downloadable firmware artifacts for supported JKBMSR hardware targets.
+          This domain fronts the public <code>jkbmsr-releases</code> repository. It is the canonical anonymous download
+          host for manual firmware downloads, checksums, release notes, signed OTA metadata, and public verification
+          keys for supported JKBMSR hardware targets.
         </p>
-        <div>
-          <a class="primary" href="./firmware/esp32dev/v0.1.2/firmware.bin">Download current firmware</a>
+        <p>
+          Production device OTA still flows through the authenticated JKBMSR API. Use this host for manual download,
+          verification, installer workflows, and public distribution only.
+        </p>
+        <div class="hero-actions">
+          <a id="download-current" class="primary" href="./firmware/latest.json">Download current firmware</a>
+          <a class="muted-link" href="./firmware/latest.json">Open latest.json</a>
         </div>
       </section>
 
@@ -149,34 +165,59 @@
             <a href="https://github.com/jkbmsr/jkbmsr-releases">GitHub repository</a>
           </div>
         </article>
+
+        <article class="panel">
+          <h2>Release channels</h2>
+          <p>
+            Use the public CDN host for manual downloads. Device OTA remains authenticated and is delivered through the
+            cloud API so release visibility and download authorization stay under backend control.
+          </p>
+          <div class="links">
+            <a href="https://cdn.jkbmsr.com">Manual download channel</a>
+            <a href="https://api.jkbmsr.com/api/v1/dashboard/firmware/releases">Dashboard release API</a>
+            <a href="https://docs.jkbmsr.com/firmware/downloads">Firmware download docs</a>
+          </div>
+        </article>
       </section>
     </main>
     <script>
       async function loadLatestRelease() {
         const meta = document.getElementById("current-meta");
         const links = document.getElementById("current-links");
+        const downloadButton = document.getElementById("download-current");
 
         try {
-          const latest = await fetch("./firmware/latest.json", { cache: "no-store" }).then((response) => response.json());
+          const [latest, ota] = await Promise.all([
+            fetch("./firmware/latest.json", { cache: "no-store" }).then((response) => response.json()),
+            fetch("./ota/latest.json", { cache: "no-store" }).then((response) => response.json()),
+          ]);
           const versionPath = `./firmware/${latest.targetHardware}/v${latest.currentVersion}`;
+          const currentFirmwareUrl = `${versionPath}/firmware.bin`;
 
           meta.innerHTML = `
             <div>Version: ${latest.currentVersion}</div>
             <div>Target: ${latest.targetHardware}</div>
             <div>Released: ${latest.releasedAt}</div>
             <div>Host: ${latest.publicBaseUrl ?? "https://cdn.jkbmsr.com"}</div>
+            <div>Signature: ${ota.signatureAlgorithm}</div>
+            <div>Key ID: ${ota.signingKeyId}</div>
           `;
 
           links.innerHTML = `
-            <a href="${versionPath}/firmware.bin">firmware.bin</a>
+            <a href="${currentFirmwareUrl}">firmware.bin</a>
             <a href="${versionPath}/firmware.sha256">firmware.sha256</a>
             <a href="${versionPath}/firmware-metadata.json">firmware-metadata.json</a>
             <a href="${versionPath}/release.json">release.json</a>
             <a href="./ota/keys/public/jkbmsr-ota-p256-20260705.pem">Public OTA key</a>
           `;
+
+          downloadButton.setAttribute("href", currentFirmwareUrl);
+          downloadButton.textContent = `Download v${latest.currentVersion} firmware`;
         } catch (error) {
           meta.innerHTML = "<div>Unable to load latest release metadata.</div>";
           links.innerHTML = "";
+          downloadButton.setAttribute("href", "./firmware/latest.json");
+          downloadButton.textContent = "Open latest.json";
         }
       }
 
