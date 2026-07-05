@@ -25,20 +25,8 @@ jobs:
       - name: Validate required files
         run: |
           set -eu
-          latest_version=$(python3 - <<'PY'
-import json
-with open("firmware/latest.json", "r", encoding="utf-8") as fh:
-    data = json.load(fh)
-print(data["currentVersion"])
-PY
-)
-          target_hardware=$(python3 - <<'PY'
-import json
-with open("firmware/latest.json", "r", encoding="utf-8") as fh:
-    data = json.load(fh)
-print(data["targetHardware"])
-PY
-)
+          latest_version=$(python3 -c 'import json; print(json.load(open("firmware/latest.json", "r", encoding="utf-8"))["currentVersion"])')
+          target_hardware=$(python3 -c 'import json; print(json.load(open("firmware/latest.json", "r", encoding="utf-8"))["targetHardware"])')
           test -f README.md
           test -f CHANGELOG.md
           test -f index.html
@@ -51,20 +39,8 @@ PY
       - name: Verify published checksum
         run: |
           set -eu
-          latest_version=$(python3 - <<'PY'
-import json
-with open("firmware/latest.json", "r", encoding="utf-8") as fh:
-    data = json.load(fh)
-print(data["currentVersion"])
-PY
-)
-          target_hardware=$(python3 - <<'PY'
-import json
-with open("firmware/latest.json", "r", encoding="utf-8") as fh:
-    data = json.load(fh)
-print(data["targetHardware"])
-PY
-)
+          latest_version=$(python3 -c 'import json; print(json.load(open("firmware/latest.json", "r", encoding="utf-8"))["currentVersion"])')
+          target_hardware=$(python3 -c 'import json; print(json.load(open("firmware/latest.json", "r", encoding="utf-8"))["targetHardware"])')
           cd "firmware/${target_hardware}/v${latest_version}"
           sha256sum -c firmware.sha256
 
