@@ -1,0 +1,10 @@
+{
+  "currentVersion": "0.1.2",
+  "targetHardware": "esp32dev",
+  "releasedAt": "2026-07-05T07:14:03Z",
+  "artifactDirectory": "./esp32dev/v0.1.2/",
+  "checksumFile": "./esp32dev/v0.1.2/firmware.sha256",
+  "releaseManifest": "./esp32dev/v0.1.2/release.json",
+  "verificationGuide": "../docs/VERIFY_FIRMWARE.md",
+  "otaMetadata": "../ota/latest.json"
+}
