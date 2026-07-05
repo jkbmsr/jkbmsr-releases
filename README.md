@@ -51,7 +51,14 @@ firmware/
       firmware-metadata.json
       release.json
       RELEASE_NOTES.md
+    v0.1.3/
+      firmware.bin
+      firmware.sha256
+      firmware-metadata.json
+      release.json
+      RELEASE_NOTES.md
   latest.json
+  releases.json
 mobile/
   android/
     README.md
@@ -97,6 +104,7 @@ The Cloudflare Pages deployment should publish this repository as a static artif
 - `api.jkbmsr.com` remains the authenticated OTA channel for managed devices.
 - `jkbmsr-firmware` is the private source of truth for firmware source, release generation, and OTA signing.
 - Public artifacts mirrored here must match the release metadata published by the production OTA flow.
+- `firmware/releases.json` should remain the public history index for release pages, installer tooling, and the marketing downloads page.
 
 ## Maintainer Checklist
 

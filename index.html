@@ -112,6 +112,51 @@
       .muted-link {
         color: var(--muted);
       }
+
+      .history-list {
+        display: grid;
+        gap: 12px;
+        margin-top: 12px;
+      }
+
+      .release-row {
+        display: grid;
+        gap: 8px;
+        border: 1px solid var(--line);
+        background: rgba(0, 0, 0, 0.12);
+        padding: 12px;
+      }
+
+      .release-top {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .release-version {
+        font-weight: 700;
+      }
+
+      .release-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .badge {
+        display: inline-block;
+        padding: 4px 8px;
+        font-size: 12px;
+        font-weight: 700;
+        border: 1px solid var(--line);
+      }
+
+      .badge-primary {
+        background: rgba(31, 209, 158, 0.16);
+        border-color: rgba(31, 209, 158, 0.4);
+      }
     </style>
   </head>
   <body>
@@ -141,6 +186,14 @@
             <div>Loading current release metadata...</div>
           </div>
           <div id="current-links" class="links"></div>
+        </article>
+
+        <article class="panel">
+          <h2>Release history</h2>
+          <p>Recent public firmware versions mirrored to the dedicated release host.</p>
+          <div id="release-history" class="history-list">
+            <div>Loading public release history...</div>
+          </div>
         </article>
 
         <article class="panel">
@@ -185,11 +238,13 @@
         const meta = document.getElementById("current-meta");
         const links = document.getElementById("current-links");
         const downloadButton = document.getElementById("download-current");
+        const releaseHistory = document.getElementById("release-history");
 
         try {
-          const [latest, ota] = await Promise.all([
+          const [latest, ota, history] = await Promise.all([
             fetch("./firmware/latest.json", { cache: "no-store" }).then((response) => response.json()),
             fetch("./ota/latest.json", { cache: "no-store" }).then((response) => response.json()),
+            fetch("./firmware/releases.json", { cache: "no-store" }).then((response) => response.json()),
           ]);
           const versionPath = `./firmware/${latest.targetHardware}/v${latest.currentVersion}`;
           const currentFirmwareUrl = `${versionPath}/firmware.bin`;
@@ -211,11 +266,44 @@
             <a href="./ota/keys/public/jkbmsr-ota-p256-20260705.pem">Public OTA key</a>
           `;
 
+          releaseHistory.innerHTML = history.releases
+            .map((release) => {
+              const manifestPath = release.artifacts.manifest.replace(/^\.\//, "./");
+              const releaseDir = manifestPath.replace(/\/release\.json$/, "/");
+              const notesPath = release.artifacts.releaseNotes.replace(/^\.\//, "./");
+              const checksumPath = release.artifacts.checksum.replace(/^\.\//, "./");
+              return `
+                <div class="release-row">
+                  <div class="release-top">
+                    <div>
+                      <div class="release-version">v${release.version}</div>
+                      <div class="meta">
+                        <div>${release.targetHardware}</div>
+                        <div>${release.releasedAt}</div>
+                      </div>
+                    </div>
+                    <div class="release-badges">
+                      ${release.isLatest ? '<span class="badge badge-primary">Latest</span>' : '<span class="badge">Historic</span>'}
+                      <span class="badge">${release.otaMetadata.signatureAlgorithm}</span>
+                    </div>
+                  </div>
+                  <div class="links">
+                    <a href="${releaseDir}firmware.bin">firmware.bin</a>
+                    <a href="${checksumPath}">firmware.sha256</a>
+                    <a href="${manifestPath}">release.json</a>
+                    <a href="${notesPath}">Release notes</a>
+                  </div>
+                </div>
+              `;
+            })
+            .join("");
+
           downloadButton.setAttribute("href", currentFirmwareUrl);
           downloadButton.textContent = `Download v${latest.currentVersion} firmware`;
         } catch (error) {
           meta.innerHTML = "<div>Unable to load latest release metadata.</div>";
           links.innerHTML = "";
+          releaseHistory.innerHTML = "<div>Unable to load public release history.</div>";
           downloadButton.setAttribute("href", "./firmware/latest.json");
           downloadButton.textContent = "Open latest.json";
         }

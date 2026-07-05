@@ -5,8 +5,8 @@
 Current public firmware release:
 
 - Target: `esp32dev`
-- Version: `0.1.2`
-- Directory: `firmware/esp32dev/v0.1.2/`
+- Version: `0.1.3`
+- Directory: `firmware/esp32dev/v0.1.3/`
 
 Artifacts:
 
@@ -18,11 +18,14 @@ Artifacts:
 
 Supporting files:
 
+- `firmware/latest.json`
+- `firmware/releases.json`
 - `ota/latest.json`
 - `ota/keys/public/jkbmsr-ota-p256-20260705.pem`
 
 ## Notes
 
+- `firmware/releases.json` is the public release-history index used by the release host and marketing downloads page.
 - Source code is not published in this repository
 - Private signing material is never published in this repository
 - Future Android APK releases will be added under `mobile/android/`

@@ -32,6 +32,7 @@ jobs:
           test -f CHANGELOG.md
           test -f index.html
           test -f firmware/latest.json
+          test -f firmware/releases.json
           test -f ota/latest.json
           test -f docs/DOWNLOADS.md
           test -f docs/OTA_SECURITY.md

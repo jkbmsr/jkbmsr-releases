@@ -1,0 +1,53 @@
+{
+  "publicBaseUrl": "https://cdn.jkbmsr.com",
+  "releases": [
+    {
+      "version": "0.1.3",
+      "targetHardware": "esp32dev",
+      "releasedAt": "2026-07-05T10:03:52Z",
+      "githubReleaseTag": "firmware-v0.1.3",
+      "isLatest": true,
+      "artifacts": {
+        "firmware": "./esp32dev/v0.1.3/firmware.bin",
+        "checksum": "./esp32dev/v0.1.3/firmware.sha256",
+        "metadata": "./esp32dev/v0.1.3/firmware-metadata.json",
+        "releaseNotes": "./esp32dev/v0.1.3/RELEASE_NOTES.md",
+        "manifest": "./esp32dev/v0.1.3/release.json"
+      },
+      "otaMetadata": {
+        "version": "0.1.3",
+        "targetHardware": "esp32dev",
+        "releasedAt": "2026-07-05T10:03:52Z",
+        "downloadUrl": "/api/v1/ota/firmware",
+        "sha256": "1700065c064c4610d4d439f5449cc31b9426d4f58d770ce3e0d1493c3f981207",
+        "signature": "MEUCIG73fnAlFUbLALH7+xL44K3Sw3GDUw9m4dY131oIkzp1AiEAlPcL84bUOd15N3A3IEJyTlqeH6bmuLMtFFT5iAxckuQ=",
+        "signingKeyId": "jkbmsr-ota-p256-20260705",
+        "signatureAlgorithm": "ecdsa-p256-sha256"
+      }
+    },
+    {
+      "version": "0.1.2",
+      "targetHardware": "esp32dev",
+      "releasedAt": "2026-07-05T07:14:03Z",
+      "githubReleaseTag": "firmware-v0.1.2",
+      "isLatest": false,
+      "artifacts": {
+        "firmware": "./esp32dev/v0.1.2/firmware.bin",
+        "checksum": "./esp32dev/v0.1.2/firmware.sha256",
+        "metadata": "./esp32dev/v0.1.2/firmware-metadata.json",
+        "releaseNotes": "./esp32dev/v0.1.2/RELEASE_NOTES.md",
+        "manifest": "./esp32dev/v0.1.2/release.json"
+      },
+      "otaMetadata": {
+        "version": "0.1.2",
+        "targetHardware": "esp32dev",
+        "releasedAt": "2026-07-05T07:14:03Z",
+        "downloadUrl": "/api/v1/ota/firmware",
+        "sha256": "24c0d60d08894d333e954ec226cbed69b80de8729bdcbec57e052bc4cfe2bfe2",
+        "signature": "MEYCIQC1eMljN4zL+D8sppiFLBCosU8sC72LVvvrUhubNsLPbgIhAIjHqLuJuODOuofha+HPyhzLTY4xfjbzCYCihAkY3YU/",
+        "signingKeyId": "jkbmsr-ota-p256-20260705",
+        "signatureAlgorithm": "ecdsa-p256-sha256"
+      }
+    }
+  ]
+}
