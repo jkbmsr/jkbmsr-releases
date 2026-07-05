@@ -36,7 +36,7 @@ This repository must not contain:
 ## Current Published Artifacts
 
 - Firmware target: `esp32dev`
-- Current published firmware: `v0.1.2`
+- Current published firmware: `v0.1.3`
 - OTA signing key ID: `jkbmsr-ota-p256-20260705`
 - OTA signature algorithm: `ecdsa-p256-sha256`
 
@@ -115,3 +115,4 @@ Before merging public artifact updates:
 3. Confirm `ota/latest.json` exposes only public verification material.
 4. Confirm no private keys, Cloudflare tokens, or internal-only files were added.
 5. Confirm links on `index.html` and docs still resolve under `https://cdn.jkbmsr.com`.
+6. Run `python3 scripts/validate_release_index.py` to verify `firmware/latest.json`, `firmware/releases.json`, and manifest files stay aligned.

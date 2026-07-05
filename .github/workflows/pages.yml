@@ -37,10 +37,14 @@ jobs:
           test -f docs/DOWNLOADS.md
           test -f docs/OTA_SECURITY.md
           test -f docs/VERIFY_FIRMWARE.md
+          test -f scripts/validate_release_index.py
           test -f "firmware/${target_hardware}/v${latest_version}/firmware.bin"
           test -f "firmware/${target_hardware}/v${latest_version}/firmware.sha256"
           test -f ota/keys/public/jkbmsr-ota-p256-20260705.pem
           test "${public_base_url}" = "https://cdn.jkbmsr.com"
+
+      - name: Validate release index consistency
+        run: python3 scripts/validate_release_index.py
 
       - name: Verify published checksum
         run: |
