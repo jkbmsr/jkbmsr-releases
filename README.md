@@ -6,6 +6,10 @@ JKBMSR means **JK Battery Management System Remote**.
 
 This repository is public by design. It is for release binaries, checksums, signed OTA metadata, release notes, and public download documentation.
 
+Public artifact host:
+
+- `https://cdn.jkbmsr.com`
+
 ## Scope
 
 This repository may contain:

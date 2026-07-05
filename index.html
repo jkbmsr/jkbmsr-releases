@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>JKBMSR Public Releases</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0b0f14;
+        --panel: #121822;
+        --line: #273041;
+        --text: #e7edf5;
+        --muted: #93a2b8;
+        --accent: #1fd19e;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      main {
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 48px 20px 80px;
+      }
+
+      h1,
+      h2,
+      p {
+        margin: 0;
+      }
+
+      .hero {
+        display: grid;
+        gap: 12px;
+        padding-bottom: 28px;
+      }
+
+      .eyebrow {
+        color: var(--accent);
+        font-size: 13px;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+
+      .hero p {
+        color: var(--muted);
+        max-width: 720px;
+        line-height: 1.5;
+      }
+
+      .grid {
+        display: grid;
+        gap: 16px;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        margin-top: 28px;
+      }
+
+      .panel {
+        border: 1px solid var(--line);
+        background: var(--panel);
+        padding: 18px;
+      }
+
+      .panel p {
+        color: var(--muted);
+        margin-top: 8px;
+        line-height: 1.5;
+      }
+
+      .links {
+        display: grid;
+        gap: 10px;
+        margin-top: 14px;
+      }
+
+      a {
+        color: var(--text);
+      }
+
+      .primary {
+        color: #02130d;
+        background: var(--accent);
+        text-decoration: none;
+        display: inline-block;
+        padding: 10px 14px;
+        font-weight: 700;
+      }
+
+      .meta {
+        display: grid;
+        gap: 8px;
+        margin-top: 12px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <div class="eyebrow">JKBMSR Releases</div>
+        <h1>Public firmware artifacts and verification files</h1>
+        <p>
+          This domain fronts the public <code>jkbmsr-releases</code> repository. It publishes signed OTA metadata,
+          checksums, release notes, and downloadable firmware artifacts for supported JKBMSR hardware targets.
+        </p>
+        <div>
+          <a class="primary" href="./firmware/esp32dev/v0.1.2/firmware.bin">Download current firmware</a>
+        </div>
+      </section>
+
+      <section class="grid">
+        <article class="panel">
+          <h2>Current firmware</h2>
+          <div id="current-meta" class="meta">
+            <div>Loading current release metadata...</div>
+          </div>
+          <div id="current-links" class="links"></div>
+        </article>
+
+        <article class="panel">
+          <h2>Verification</h2>
+          <p>Use the checksum and signed OTA metadata before manual flashing or validation work.</p>
+          <div class="links">
+            <a href="./docs/VERIFY_FIRMWARE.md">Verify firmware</a>
+            <a href="./docs/OTA_SECURITY.md">OTA security</a>
+            <a href="./ota/latest.json">Current OTA metadata</a>
+          </div>
+        </article>
+
+        <article class="panel">
+          <h2>Notes</h2>
+          <p>
+            JKBMSR version 1 supports JK-BMS only. This site serves public artifacts only and does not include any
+            private signing material or source repositories.
+          </p>
+          <div class="links">
+            <a href="./docs/DOWNLOADS.md">Downloads guide</a>
+            <a href="./CHANGELOG.md">Changelog</a>
+            <a href="https://github.com/jkbmsr/jkbmsr-releases">GitHub repository</a>
+          </div>
+        </article>
+      </section>
+    </main>
+    <script>
+      async function loadLatestRelease() {
+        const meta = document.getElementById("current-meta");
+        const links = document.getElementById("current-links");
+
+        try {
+          const latest = await fetch("./firmware/latest.json", { cache: "no-store" }).then((response) => response.json());
+          const versionPath = `./firmware/${latest.targetHardware}/v${latest.currentVersion}`;
+
+          meta.innerHTML = `
+            <div>Version: ${latest.currentVersion}</div>
+            <div>Target: ${latest.targetHardware}</div>
+            <div>Released: ${latest.releasedAt}</div>
+            <div>Host: ${latest.publicBaseUrl ?? "https://cdn.jkbmsr.com"}</div>
+          `;
+
+          links.innerHTML = `
+            <a href="${versionPath}/firmware.bin">firmware.bin</a>
+            <a href="${versionPath}/firmware.sha256">firmware.sha256</a>
+            <a href="${versionPath}/firmware-metadata.json">firmware-metadata.json</a>
+            <a href="${versionPath}/release.json">release.json</a>
+            <a href="./ota/keys/public/jkbmsr-ota-p256-20260705.pem">Public OTA key</a>
+          `;
+        } catch (error) {
+          meta.innerHTML = "<div>Unable to load latest release metadata.</div>";
+          links.innerHTML = "";
+        }
+      }
+
+      void loadLatestRelease();
+    </script>
+  </body>
+</html>

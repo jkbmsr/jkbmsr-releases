@@ -1,0 +1,101 @@
+name: Build and deploy public releases
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+  deployments: write
+
+concurrency:
+  group: jkbmsr-releases-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Validate and package public releases
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate required files
+        run: |
+          set -eu
+          latest_version=$(python3 - <<'PY'
+import json
+with open("firmware/latest.json", "r", encoding="utf-8") as fh:
+    data = json.load(fh)
+print(data["currentVersion"])
+PY
+)
+          target_hardware=$(python3 - <<'PY'
+import json
+with open("firmware/latest.json", "r", encoding="utf-8") as fh:
+    data = json.load(fh)
+print(data["targetHardware"])
+PY
+)
+          test -f README.md
+          test -f CHANGELOG.md
+          test -f index.html
+          test -f firmware/latest.json
+          test -f ota/latest.json
+          test -f "firmware/${target_hardware}/v${latest_version}/firmware.bin"
+          test -f "firmware/${target_hardware}/v${latest_version}/firmware.sha256"
+          test -f ota/keys/public/jkbmsr-ota-p256-20260705.pem
+
+      - name: Verify published checksum
+        run: |
+          set -eu
+          latest_version=$(python3 - <<'PY'
+import json
+with open("firmware/latest.json", "r", encoding="utf-8") as fh:
+    data = json.load(fh)
+print(data["currentVersion"])
+PY
+)
+          target_hardware=$(python3 - <<'PY'
+import json
+with open("firmware/latest.json", "r", encoding="utf-8") as fh:
+    data = json.load(fh)
+print(data["targetHardware"])
+PY
+)
+          cd "firmware/${target_hardware}/v${latest_version}"
+          sha256sum -c firmware.sha256
+
+      - name: Prepare static artifact
+        run: |
+          set -eu
+          mkdir -p dist
+          cp README.md CHANGELOG.md index.html dist/
+          cp -R docs firmware mobile ota dist/
+
+      - name: Upload static artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: jkbmsr-releases-dist
+          path: dist
+          if-no-files-found: error
+
+  deploy:
+    name: Deploy to Cloudflare Pages
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download static artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: jkbmsr-releases-dist
+          path: dist
+
+      - name: Deploy
+        run: npx wrangler pages deploy dist --project-name jkbmsr-releases --branch main
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
