@@ -7,7 +7,8 @@
     "firmware": "./firmware.bin",
     "checksum": "./firmware.sha256",
     "metadata": "./firmware-metadata.json",
-    "releaseNotes": "./RELEASE_NOTES.md"
+    "releaseNotes": "./RELEASE_NOTES.md",
+    "flashManifest": "./flash-manifest.json"
   },
   "otaMetadata": {
     "version": "0.1.3",

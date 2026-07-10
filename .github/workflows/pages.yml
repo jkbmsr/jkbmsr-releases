@@ -40,7 +40,14 @@ jobs:
           test -f scripts/validate_release_index.py
           test -f "firmware/${target_hardware}/v${latest_version}/firmware.bin"
           test -f "firmware/${target_hardware}/v${latest_version}/firmware.sha256"
+          test -f "firmware/${target_hardware}/v${latest_version}/flash-manifest.json"
+          test -f "firmware/${target_hardware}/v${latest_version}/bootloader.bin"
+          test -f "firmware/${target_hardware}/v${latest_version}/partitions.bin"
+          test -f "firmware/${target_hardware}/v${latest_version}/boot_app0.bin"
           test -f ota/keys/public/jkbmsr-ota-p256-20260705.pem
+          test -f flash/index.html
+          test -f vendor/esp-web-tools/esp-web-install-button.js
+          test -f vendor/esp-web-tools/LICENSE
           test "${public_base_url}" = "https://cdn.jkbmsr.com"
 
       - name: Validate release index consistency
@@ -58,8 +65,8 @@ jobs:
         run: |
           set -eu
           mkdir -p dist
-          cp README.md CHANGELOG.md index.html dist/
-          cp -R docs firmware mobile ota dist/
+          cp README.md CHANGELOG.md index.html _headers dist/
+          cp -R docs firmware mobile ota flash vendor dist/
 
       - name: Upload static artifact
         uses: actions/upload-artifact@v4
