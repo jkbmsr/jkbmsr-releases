@@ -1,11 +1,11 @@
 {
-  "currentVersion": "0.1.3",
+  "currentVersion": "0.1.4",
   "targetHardware": "esp32dev",
-  "releasedAt": "2026-07-05T10:03:52Z",
+  "releasedAt": "2026-07-11T02:46:01Z",
   "publicBaseUrl": "https://cdn.jkbmsr.com",
-  "artifactDirectory": "./esp32dev/v0.1.3/",
-  "checksumFile": "./esp32dev/v0.1.3/firmware.sha256",
-  "releaseManifest": "./esp32dev/v0.1.3/release.json",
+  "artifactDirectory": "./esp32dev/v0.1.4/",
+  "checksumFile": "./esp32dev/v0.1.4/firmware.sha256",
+  "releaseManifest": "./esp32dev/v0.1.4/release.json",
   "verificationGuide": "../docs/VERIFY_FIRMWARE.md",
   "releaseIndex": "./releases.json",
   "otaMetadata": "../ota/latest.json"
