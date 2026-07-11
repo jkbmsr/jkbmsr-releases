@@ -4,15 +4,63 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>JKBMSR Public Releases</title>
+    <script>
+      // Apply the stored theme before first paint. Light default; explicit dark opts in.
+      (function () {
+        try {
+          if (localStorage.getItem("jkbmsr.theme") === "dark") {
+            document.documentElement.classList.add("dark");
+          }
+        } catch (e) {}
+      })();
+    </script>
     <style>
+      /* Light is the default; html.dark (set pre-paint by the head script /
+         toggle) swaps the tokens. */
       :root {
+        color-scheme: light;
+        --bg: #f4f6f9;
+        --panel: #ffffff;
+        --line: #e2e8f0;
+        --text: #334155;
+        --heading: #0f172a;
+        --muted: #64748b;
+        --accent: #059669;
+        --on-accent: #ffffff;
+        --code-bg: rgba(15, 23, 42, 0.06);
+      }
+
+      html.dark {
         color-scheme: dark;
         --bg: #0b0f14;
         --panel: #121822;
         --line: #273041;
         --text: #e7edf5;
+        --heading: #ffffff;
         --muted: #93a2b8;
         --accent: #1fd19e;
+        --on-accent: #02130d;
+        --code-bg: rgba(0, 0, 0, 0.12);
+      }
+
+      h1,
+      h2 {
+        color: var(--heading);
+      }
+
+      .theme-toggle {
+        position: fixed;
+        top: 16px;
+        right: 16px;
+        width: 40px;
+        height: 40px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--line);
+        background: var(--panel);
+        color: var(--muted);
+        cursor: pointer;
       }
 
       * {
@@ -93,7 +141,7 @@
       }
 
       .primary {
-        color: #02130d;
+        color: var(--on-accent);
         background: var(--accent);
         text-decoration: none;
         display: inline-block;
@@ -123,7 +171,7 @@
         display: grid;
         gap: 8px;
         border: 1px solid var(--line);
-        background: rgba(0, 0, 0, 0.12);
+        background: var(--code-bg);
         padding: 12px;
       }
 
@@ -160,6 +208,9 @@
     </style>
   </head>
   <body>
+    <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">
+      <span id="theme-icon" aria-hidden="true">🌙</span>
+    </button>
     <main>
       <section class="hero">
         <div class="eyebrow">JKBMSR Releases</div>
@@ -311,6 +362,22 @@
       }
 
       void loadLatestRelease();
+
+      (function setupThemeToggle() {
+        const button = document.getElementById("theme-toggle");
+        const icon = document.getElementById("theme-icon");
+        function sync() {
+          icon.textContent = document.documentElement.classList.contains("dark") ? "☀️" : "🌙";
+        }
+        sync();
+        button.addEventListener("click", function () {
+          const isDark = document.documentElement.classList.toggle("dark");
+          try {
+            localStorage.setItem("jkbmsr.theme", isDark ? "dark" : "light");
+          } catch (e) {}
+          sync();
+        });
+      })();
     </script>
   </body>
 </html>
