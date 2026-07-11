@@ -15,6 +15,7 @@
         --muted: #93a2b8;
         --accent: #1fd19e;
         --warn: #f5a524;
+        --ok: #1fd19e;
       }
 
       * {
@@ -50,6 +51,7 @@
       h1 {
         margin-top: 12px;
         font-size: 32px;
+        line-height: 1.15;
       }
 
       .lede {
@@ -58,8 +60,49 @@
         line-height: 1.5;
       }
 
+      .flow {
+        margin-top: 28px;
+        display: grid;
+        gap: 10px;
+      }
+
+      .flow-step {
+        display: grid;
+        grid-template-columns: 28px 1fr;
+        gap: 12px;
+        align-items: start;
+        border: 1px solid var(--line);
+        background: var(--panel);
+        padding: 14px 16px;
+      }
+
+      .flow-step .n {
+        width: 28px;
+        height: 28px;
+        border-radius: 999px;
+        display: grid;
+        place-items: center;
+        font-size: 13px;
+        font-weight: 700;
+        color: #02130d;
+        background: var(--accent);
+      }
+
+      .flow-step strong {
+        display: block;
+        font-size: 14px;
+      }
+
+      .flow-step span {
+        display: block;
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
       .panel {
-        margin-top: 32px;
+        margin-top: 28px;
         border: 1px solid var(--line);
         background: var(--panel);
         padding: 24px;
@@ -76,18 +119,27 @@
         font-size: 14px;
       }
 
-      .warning {
-        margin-top: 32px;
-        border: 1px solid rgba(245, 165, 36, 0.4);
-        background: rgba(245, 165, 36, 0.08);
+      .callout {
+        margin-top: 28px;
+        border: 1px solid rgba(31, 209, 158, 0.35);
+        background: rgba(31, 209, 158, 0.08);
         padding: 20px;
       }
 
-      .warning .eyebrow {
+      .callout.warn {
+        border-color: rgba(245, 165, 36, 0.4);
+        background: rgba(245, 165, 36, 0.08);
+      }
+
+      .callout .eyebrow {
+        color: var(--ok);
+      }
+
+      .callout.warn .eyebrow {
         color: var(--warn);
       }
 
-      .warning p {
+      .callout p {
         margin-top: 10px;
         color: var(--text);
         line-height: 1.6;
@@ -118,6 +170,11 @@
         background: var(--accent);
       }
 
+      esp-web-install-button[disabled] button {
+        opacity: 0.45;
+        cursor: not-allowed;
+      }
+
       esp-web-install-button [slot="unsupported"],
       esp-web-install-button [slot="not-allowed"] {
         display: block;
@@ -140,10 +197,24 @@
         color: var(--text);
       }
 
+      a.accent {
+        color: var(--accent);
+      }
+
       code {
         background: rgba(255, 255, 255, 0.08);
         padding: 2px 6px;
         font-size: 13px;
+      }
+
+      .meta {
+        margin-top: 8px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .hidden {
+        display: none !important;
       }
     </style>
   </head>
@@ -152,19 +223,48 @@
       <div class="eyebrow">JKBMSR Firmware</div>
       <h1>Flash your ESP32 gateway from Chrome or Edge</h1>
       <p class="lede">
-        This installs the latest firmware for <code>esp32dev</code> (currently
-        <strong id="version-label">loading…</strong>) directly over USB using the Web Serial API — no software to
-        install. Works in desktop Chrome or Edge only; Firefox and Safari, and all mobile browsers, do not support
-        Web Serial.
+        Install firmware over USB with the Web Serial API — no drivers or Arduino IDE.
+        Desktop Chrome or Edge only (not Firefox, Safari, or mobile).
       </p>
+
+      <div class="flow" aria-label="Setup flow">
+        <div class="flow-step">
+          <div class="n">1</div>
+          <div>
+            <strong>Flash</strong>
+            <span>Install the latest <code>esp32dev</code> build (<strong id="version-label">loading…</strong>).</span>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="n">2</div>
+          <div>
+            <strong>Connect Wi‑Fi</strong>
+            <span
+              >After install, the same dialog offers Wi‑Fi setup via
+              <em>Improv Serial</em> (SSID + password). Keep the USB cable plugged in.</span
+            >
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="n">3</div>
+          <div>
+            <strong>Claim the device</strong>
+            <span
+              >On success you’re sent to
+              <a class="accent" href="https://app.jkbmsr.com/onboard">app.jkbmsr.com/onboard</a>
+              with the device ID and claim code filled in — sign in and confirm.</span
+            >
+          </div>
+        </div>
+      </div>
 
       <div class="panel">
         <h2>Before you start</h2>
         <ol class="steps">
-          <li>Connect the ESP32 to this computer with a USB data cable (not charge-only).</li>
-          <li>Close any other program using the serial port (Arduino IDE, PlatformIO monitor, etc.).</li>
-          <li>Click install below, then pick the ESP32's port when Chrome prompts you.</li>
-          <li>Do not disconnect the device while flashing is in progress.</li>
+          <li>Use a USB <em>data</em> cable (not charge-only).</li>
+          <li>Close Arduino IDE, PlatformIO monitor, or anything else holding the serial port.</li>
+          <li>Click install, pick the ESP32 port when Chrome prompts you.</li>
+          <li>Don’t unplug while flashing. After flash, leave USB connected for Wi‑Fi setup.</li>
         </ol>
 
         <esp-web-install-button id="install-button">
@@ -174,47 +274,101 @@
             Firefox/Safari.</span
           >
           <span slot="not-allowed"
-            >This page needs to be served over HTTPS (or localhost) to flash a device — you're seeing this in error
-            if you're on <code>cdn.jkbmsr.com</code>.</span
+            >This page needs HTTPS (or localhost) for Web Serial. On production it should be
+            <code>cdn.jkbmsr.com</code>.</span
           >
         </esp-web-install-button>
+        <p class="meta" id="manifest-meta"></p>
       </div>
 
-      <div class="warning">
-        <div class="eyebrow">Flashing alone won't get the device online yet</div>
+      <div class="callout" id="callout-ready">
+        <div class="eyebrow">Field fallback</div>
         <p>
-          <code>jkbmsr-firmware</code> doesn't have a Wi-Fi provisioning flow built yet (no captive portal, no
-          BLE setup). A freshly flashed device boots with no stored Wi-Fi credentials and will sit idle — it
-          won't connect to the cloud or show up in the dashboard on its own. If you need it online today, ask
-          about a serial-based provisioning stopgap, or flash a build with credentials compiled in for this one
-          test.
+          No USB later? Hold the ESP32 <strong>BOOT</strong> button ~5 seconds to re-enter setup, join the
+          SoftAP <code>JKBMSR-Setup-XXXX</code> (password = claim code on the label / serial log), and submit
+          Wi‑Fi from your phone.
+        </p>
+      </div>
+
+      <div class="callout warn hidden" id="callout-old-firmware">
+        <div class="eyebrow">This CDN build predates Wi‑Fi provisioning</div>
+        <p>
+          Public release <strong id="old-version"></strong> does not yet include Improv / SoftAP setup. After
+          flashing it, the device will sit offline until you install a provisioning-capable build (firmware
+          <code>0.1.4+</code>) via a new release or a local
+          <code>pio run -e dev -t upload</code>. The install button still works for a baseline flash.
         </p>
       </div>
 
       <div class="links">
-        <a href="../docs/VERIFY_FIRMWARE.md">Verify this firmware's checksum and signature manually</a>
+        <a href="https://app.jkbmsr.com/onboard">Open device claim / onboard</a>
+        <a href="https://app.jkbmsr.com/devices/claim">Claim device (manual entry)</a>
+        <a href="../docs/VERIFY_FIRMWARE.md">Verify checksum and signature</a>
         <a href="../ota/keys/public/jkbmsr-ota-p256-20260705.pem">Public OTA signing key</a>
         <a href="../">Back to all releases</a>
       </div>
     </main>
     <script>
+      function parseSemver(version) {
+        const match = String(version || "").trim().match(/^v?(\d+)\.(\d+)\.(\d+)/);
+        if (!match) {
+          return null;
+        }
+        return [Number(match[1]), Number(match[2]), Number(match[3])];
+      }
+
+      function isAtLeast(version, minimum) {
+        const a = parseSemver(version);
+        const b = parseSemver(minimum);
+        if (!a || !b) {
+          return false;
+        }
+        for (let i = 0; i < 3; i++) {
+          if (a[i] > b[i]) {
+            return true;
+          }
+          if (a[i] < b[i]) {
+            return false;
+          }
+        }
+        return true;
+      }
+
       async function resolveLatestManifest() {
         const versionLabel = document.getElementById("version-label");
         const installButton = document.getElementById("install-button");
+        const manifestMeta = document.getElementById("manifest-meta");
+        const oldCallout = document.getElementById("callout-old-firmware");
+        const readyCallout = document.getElementById("callout-ready");
+        const oldVersion = document.getElementById("old-version");
 
         try {
-          const latest = await fetch("../firmware/latest.json", { cache: "no-store" }).then((r) => r.json());
+          const latest = await fetch("../firmware/latest.json", { cache: "no-store" }).then((r) => {
+            if (!r.ok) {
+              throw new Error(`latest.json HTTP ${r.status}`);
+            }
+            return r.json();
+          });
           if (latest.targetHardware !== "esp32dev") {
             throw new Error(`Unsupported target hardware: ${latest.targetHardware}`);
           }
-          versionLabel.textContent = `v${latest.currentVersion}`;
-          installButton.setAttribute(
-            "manifest",
-            `../firmware/${latest.targetHardware}/v${latest.currentVersion}/flash-manifest.json`,
-          );
+
+          const version = latest.currentVersion;
+          versionLabel.textContent = `v${version}`;
+          const manifestPath = `../firmware/${latest.targetHardware}/v${version}/flash-manifest.json`;
+          installButton.setAttribute("manifest", manifestPath);
+          manifestMeta.textContent = `Manifest: ${manifestPath.replace(/^\.\.\//, "")}`;
+
+          // Provisioning (Improv Serial + SoftAP + claim redirect) ships in 0.1.4+.
+          if (!isAtLeast(version, "0.1.4")) {
+            oldVersion.textContent = `v${version}`;
+            oldCallout.classList.remove("hidden");
+            readyCallout.classList.add("hidden");
+          }
         } catch (error) {
           versionLabel.textContent = "unavailable";
           installButton.setAttribute("disabled", "true");
+          manifestMeta.textContent = error instanceof Error ? error.message : "Failed to load latest.json";
         }
       }
 
