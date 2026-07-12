@@ -250,6 +250,52 @@
         font-size: 13px;
       }
 
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 18px;
+      }
+
+      .action-button {
+        border: 1px solid var(--accent);
+        background: var(--accent);
+        color: var(--on-accent);
+        padding: 11px 16px;
+        font: inherit;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .action-button.secondary {
+        background: transparent;
+        color: var(--accent);
+      }
+
+      .action-button:disabled {
+        cursor: not-allowed;
+        opacity: 0.5;
+      }
+
+      .serial-status {
+        margin-top: 14px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .serial-log {
+        width: 100%;
+        min-height: 220px;
+        margin-top: 10px;
+        border: 1px solid var(--line);
+        background: #071018;
+        color: #d7fbe9;
+        padding: 12px;
+        resize: vertical;
+        font: 12px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      }
+
       .hidden {
         display: none !important;
       }
@@ -297,7 +343,7 @@
         <div class="flow-step">
           <div class="n">2</div>
           <div>
-            <strong>Connect Wi‑Fi</strong>
+            <strong>Connect &amp; configure</strong>
             <span
               >After install, the same dialog offers Wi‑Fi setup via
               <em>Improv Serial</em> (SSID + password). Keep the USB cable plugged in.</span
@@ -315,6 +361,35 @@
             >
           </div>
         </div>
+      </div>
+
+      <div class="panel" id="configure-panel">
+        <h2>2. Connect &amp; Configure</h2>
+        <p>
+          When installation finishes, close the install dialog, then click <strong>Open live logs</strong> and
+          select the same ESP32 serial port again. Press the board's <strong>EN/RESET</strong> button once if no
+          new lines appear.
+        </p>
+        <ol class="steps">
+          <li>Confirm the log says <code>JKBMSR firmware starting</code>.</li>
+          <li>Keep this page open and use the install dialog's Wi‑Fi setup when offered.</li>
+          <li>If Wi‑Fi setup is not offered, join <code>JKBMSR-Setup-XXXX</code> from your phone and open its setup page.</li>
+          <li>Save the Device ID and claim code printed below, then claim the gateway.</li>
+        </ol>
+        <div class="actions">
+          <button type="button" class="action-button" id="open-logs">Open live logs</button>
+          <button type="button" class="action-button secondary hidden" id="close-logs">Close logs</button>
+          <a class="action-button secondary" href="https://app.jkbmsr.com/onboard">Open device claim</a>
+        </div>
+        <div class="serial-status" id="serial-status" role="status">Serial monitor disconnected.</div>
+        <textarea
+          class="serial-log hidden"
+          id="serial-log"
+          readonly
+          spellcheck="false"
+          aria-label="ESP32 live serial logs"
+          placeholder="ESP32 boot and provisioning logs will appear here…"
+        ></textarea>
       </div>
 
       <div class="panel">
@@ -432,6 +507,85 @@
       }
 
       void resolveLatestManifest();
+
+      (function setupSerialMonitor() {
+        const openButton = document.getElementById("open-logs");
+        const closeButton = document.getElementById("close-logs");
+        const status = document.getElementById("serial-status");
+        const log = document.getElementById("serial-log");
+        let port = null;
+        let reader = null;
+        let reading = false;
+
+        function setConnected(connected) {
+          openButton.classList.toggle("hidden", connected);
+          closeButton.classList.toggle("hidden", !connected);
+          log.classList.toggle("hidden", !connected);
+        }
+
+        async function closeSerial() {
+          reading = false;
+          if (reader) {
+            try {
+              await reader.cancel();
+            } catch (error) {}
+          }
+        }
+
+        openButton.addEventListener("click", async function () {
+          if (!("serial" in navigator)) {
+            status.textContent = "Live logs require desktop Chrome or Edge with Web Serial support.";
+            return;
+          }
+
+          openButton.disabled = true;
+          try {
+            port = await navigator.serial.requestPort();
+            await port.open({ baudRate: 115200 });
+            reader = port.readable.pipeThrough(new TextDecoderStream()).getReader();
+            reading = true;
+            log.value = "";
+            setConnected(true);
+            status.textContent = "Connected at 115200 baud. Press EN/RESET once if the log stays blank.";
+
+            while (reading) {
+              const { value, done } = await reader.read();
+              if (done) break;
+              if (value) {
+                log.value += value;
+                log.scrollTop = log.scrollHeight;
+              }
+            }
+          } catch (error) {
+            status.textContent = error && error.name === "NotFoundError"
+              ? "No serial port selected. Click Open live logs and choose the ESP32 port."
+              : `Could not open the serial port: ${error && error.message ? error.message : error}`;
+          } finally {
+            openButton.disabled = false;
+            if (reader) {
+              try {
+                reader.releaseLock();
+              } catch (error) {}
+              reader = null;
+            }
+            if (port) {
+              try {
+                await port.close();
+              } catch (error) {}
+              port = null;
+            }
+            setConnected(false);
+            if (!reading) status.textContent = "Serial monitor disconnected.";
+          }
+        });
+
+        closeButton.addEventListener("click", closeSerial);
+        if ("serial" in navigator) {
+          navigator.serial.addEventListener("disconnect", function (event) {
+            if (event.target === port) void closeSerial();
+          });
+        }
+      })();
 
       (function setupThemeToggle() {
         const button = document.getElementById("theme-toggle");
