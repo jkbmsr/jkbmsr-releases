@@ -367,8 +367,9 @@
         <h2>2. Connect &amp; Configure</h2>
         <p>
           When installation finishes, close the install dialog, then click <strong>Open live logs</strong> and
-          select the same ESP32 serial port again. Press the board's <strong>EN/RESET</strong> button once if no
-          new lines appear.
+          select the same ESP32 serial port again. The log starts blank because a serial monitor only shows new
+          output — click <strong>Restart device</strong> (or press the board's <strong>EN/RESET</strong> button) to
+          replay the boot log.
         </p>
         <ol class="steps">
           <li>Confirm the log says <code>JKBMSR firmware starting</code>.</li>
@@ -378,6 +379,8 @@
         </ol>
         <div class="actions">
           <button type="button" class="action-button" id="open-logs">Open live logs</button>
+          <button type="button" class="action-button secondary hidden" id="restart-device">Restart device</button>
+          <button type="button" class="action-button secondary hidden" id="download-logs">Download logs</button>
           <button type="button" class="action-button secondary hidden" id="close-logs">Close logs</button>
           <a class="action-button secondary" href="https://app.jkbmsr.com/onboard">Open device claim</a>
         </div>
@@ -511,6 +514,8 @@
       (function setupSerialMonitor() {
         const openButton = document.getElementById("open-logs");
         const closeButton = document.getElementById("close-logs");
+        const restartButton = document.getElementById("restart-device");
+        const downloadButton = document.getElementById("download-logs");
         const status = document.getElementById("serial-status");
         const log = document.getElementById("serial-log");
         let port = null;
@@ -520,6 +525,8 @@
         function setConnected(connected) {
           openButton.classList.toggle("hidden", connected);
           closeButton.classList.toggle("hidden", !connected);
+          restartButton.classList.toggle("hidden", !connected);
+          downloadButton.classList.toggle("hidden", !connected);
           log.classList.toggle("hidden", !connected);
         }
 
@@ -546,13 +553,19 @@
             reading = true;
             log.value = "";
             setConnected(true);
-            status.textContent = "Connected at 115200 baud. Press EN/RESET once if the log stays blank.";
+            status.textContent =
+              "Connected at 115200 baud. A serial monitor only shows NEW output and the device is quiet between " +
+              "events — click Restart device to replay the boot log.";
 
             while (reading) {
               const { value, done } = await reader.read();
               if (done) break;
               if (value) {
                 log.value += value;
+                // Keep long sessions from growing the buffer without bound.
+                if (log.value.length > 400000) {
+                  log.value = log.value.slice(-300000);
+                }
                 log.scrollTop = log.scrollHeight;
               }
             }
@@ -577,6 +590,34 @@
             setConnected(false);
             if (!reading) status.textContent = "Serial monitor disconnected.";
           }
+        });
+
+        restartButton.addEventListener("click", async function () {
+          if (!port) return;
+          restartButton.disabled = true;
+          try {
+            // Pulse RTS (wired to EN on ESP32 dev boards) with DTR deasserted:
+            // a clean reset into normal boot, same signalling esptool uses.
+            await port.setSignals({ dataTerminalReady: false, requestToSend: true });
+            await new Promise(function (resolve) {
+              setTimeout(resolve, 250);
+            });
+            await port.setSignals({ dataTerminalReady: false, requestToSend: false });
+            status.textContent = "Restart signal sent — the boot log should appear below.";
+          } catch (error) {
+            status.textContent = `Could not restart the device: ${error && error.message ? error.message : error}`;
+          } finally {
+            restartButton.disabled = false;
+          }
+        });
+
+        downloadButton.addEventListener("click", function () {
+          const blob = new Blob([log.value], { type: "text/plain" });
+          const link = document.createElement("a");
+          link.href = URL.createObjectURL(blob);
+          link.download = `jkbmsr-serial-log-${new Date().toISOString().replace(/[:.]/g, "-")}.txt`;
+          link.click();
+          URL.revokeObjectURL(link.href);
         });
 
         closeButton.addEventListener("click", closeSerial);
