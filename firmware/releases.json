@@ -2,11 +2,36 @@
   "publicBaseUrl": "https://cdn.jkbmsr.com",
   "releases": [
     {
+      "version": "0.2.1",
+      "targetHardware": "esp32dev",
+      "releasedAt": "2026-07-13T02:03:13Z",
+      "githubReleaseTag": "firmware-v0.2.1",
+      "isLatest": true,
+      "artifacts": {
+        "firmware": "./esp32dev/v0.2.1/firmware.bin",
+        "checksum": "./esp32dev/v0.2.1/firmware.sha256",
+        "metadata": "./esp32dev/v0.2.1/firmware-metadata.json",
+        "releaseNotes": "./esp32dev/v0.2.1/RELEASE_NOTES.md",
+        "manifest": "./esp32dev/v0.2.1/release.json",
+        "flashManifest": "./esp32dev/v0.2.1/flash-manifest.json"
+      },
+      "otaMetadata": {
+        "version": "0.2.1",
+        "targetHardware": "esp32dev",
+        "releasedAt": "2026-07-13T02:03:13Z",
+        "downloadUrl": "/api/v1/ota/firmware",
+        "sha256": "45b92003514b238e441ef866bec838bb3c0f93a55f2505c0c095937fe432c820",
+        "signature": "MEUCIQDtMKr3BlLxglDjRL7Sx1l6CBluqreI/3+AIixXvooaLwIgXkKHQmc8M4hcFUvIG8qUov+cCck59aIIKAfDv1jStyo=",
+        "signingKeyId": "jkbmsr-ota-p256-20260705",
+        "signatureAlgorithm": "ecdsa-p256-sha256"
+      }
+    },
+    {
       "version": "0.2.0",
       "targetHardware": "esp32dev",
       "releasedAt": "2026-07-13T01:28:22Z",
       "githubReleaseTag": "firmware-v0.2.0",
-      "isLatest": true,
+      "isLatest": false,
       "artifacts": {
         "firmware": "./esp32dev/v0.2.0/firmware.bin",
         "checksum": "./esp32dev/v0.2.0/firmware.sha256",
