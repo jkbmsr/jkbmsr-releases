@@ -3,6 +3,13 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
     <title>JKBMSR Public Releases</title>
     <script>
       // Apply the stored theme before first paint. Light default; explicit dark opts in.
@@ -19,27 +26,27 @@
          toggle) swaps the tokens. */
       :root {
         color-scheme: light;
-        --bg: #f4f6f9;
+        --bg: #f5f7f9;
         --panel: #ffffff;
-        --line: #e2e8f0;
-        --text: #334155;
-        --heading: #0f172a;
-        --muted: #64748b;
+        --line: #dce3e9;
+        --text: #33414d;
+        --heading: #0f1720;
+        --muted: #5b6b77;
         --accent: #059669;
         --on-accent: #ffffff;
-        --code-bg: rgba(15, 23, 42, 0.06);
+        --code-bg: rgba(15, 23, 32, 0.06);
       }
 
       html.dark {
         color-scheme: dark;
-        --bg: #0b0f14;
-        --panel: #121822;
-        --line: #273041;
-        --text: #e7edf5;
+        --bg: #080b0e;
+        --panel: #10151a;
+        --line: #26323b;
+        --text: #d8e0e6;
         --heading: #ffffff;
-        --muted: #93a2b8;
-        --accent: #1fd19e;
-        --on-accent: #02130d;
+        --muted: #8e9aa5;
+        --accent: #17c964;
+        --on-accent: #041008;
         --code-bg: rgba(0, 0, 0, 0.12);
       }
 
@@ -69,7 +76,7 @@
 
       body {
         margin: 0;
-        font-family: Arial, sans-serif;
+        font-family: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
         background: var(--bg);
         color: var(--text);
       }
@@ -202,9 +209,17 @@
       }
 
       .badge-primary {
-        background: rgba(31, 209, 158, 0.16);
-        border-color: rgba(31, 209, 158, 0.4);
+        background: color-mix(in srgb, var(--accent) 16%, transparent);
+        border-color: color-mix(in srgb, var(--accent) 40%, transparent);
       }
+    
+      /* Unified Design System v1.0 alignment: Plex + the shared radius scale
+         (md 8px controls, lg 12px panels) from jkbmsr-brand/tokens. */
+      body { font-family: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif; }
+      code, pre, .mono, textarea.serial-log { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+      .panel, .callout, .release-row { border-radius: 12px; }
+      .primary, .action-button, button, input, select, textarea { border-radius: 8px; }
+      .badge, .eyebrow-chip { border-radius: 4px; }
     </style>
   </head>
   <body>
